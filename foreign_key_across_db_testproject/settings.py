@@ -1,4 +1,4 @@
-# Django settings for foreign_key_accross_db_testproject project.
+# Django settings for foreign_key_across_db_proj project.
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -11,14 +11,21 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
-    }
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'fkad_default',
+        'USER': 'fkad',
+        'PASSWORD': 'fkad',
+    },
+    'news_db': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'fkad_news',
+        'USER': 'fkad',
+        'PASSWORD': 'fkad',
+    },
 }
+DATABASE_ROUTERS = [
+    'foreign_key_across_db_testproject.routers.NewsRouter',
+    ]
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -58,7 +65,7 @@ MEDIA_URL = ''
 ADMIN_MEDIA_PREFIX = '/media/'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '-*u%g1iyf7x5c)e0^s@7q8np17sxxz(1fg+q9bd9#9hrpcktxy'
+SECRET_KEY = 'gi%cu8tc5(0g5^l+ys$iu%wru=^_nn)b!4s2g4=3+jt1v#+_li'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -75,7 +82,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'foreign_key_accross_db_testproject.urls'
+ROOT_URLCONF = 'foreign_key_across_db_testproject.urls'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -89,8 +96,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
-    # Uncomment the next line to enable the admin:
-    # 'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+    'django.contrib.admin',
+    'fruit_app',
+    'news_app',
 )

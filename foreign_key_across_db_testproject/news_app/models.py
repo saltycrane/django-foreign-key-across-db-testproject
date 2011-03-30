@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class Article(models.Model):
+    fruit = models.ForeignKey('fruit_app.Fruit')
+    intro = models.TextField()
