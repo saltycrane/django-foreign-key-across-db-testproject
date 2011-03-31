@@ -36,7 +36,10 @@ class ReverseSingleRelatedObjectDescriptor(object):
             # related fields, respect that.
             rel_mgr = self.field.rel.to._default_manager
             db = router.db_for_read(self.field.rel.to, instance=instance)
-            if getattr(rel_mgr, 'use_for_related_fields', False):
+            if getattr(rel_mgr, 'forced_using', False):
+                db = rel_mgr.forced_using
+                rel_obj = rel_mgr.using(db).get(**params)
+            elif getattr(rel_mgr, 'use_for_related_fields', False):
                 rel_obj = rel_mgr.using(db).get(**params)
             else:
                 rel_obj = QuerySet(self.field.rel.to).using(db).get(**params)
@@ -104,24 +107,14 @@ class ReverseSingleRelatedObjectDescriptor(object):
 
 class ForeignKeyAcrossDb(models.ForeignKey):
 
-    def validate(self, value, model_instance):
-        if self.rel.parent_link:
-            return
-        super(ForeignKey, self).validate(value, model_instance)
-        if value is None:
-            return
-
-        qs = self.rel.to._default_manager.filter(**{self.rel.field_name:value})
-        qs = qs.complex_filter(self.rel.limit_choices_to)
-        if not qs.exists():
-            raise exceptions.ValidationError(self.error_messages['invalid'] % {
-                'model': self.rel.to._meta.verbose_name, 'pk': value})
-
     def contribute_to_class(self, cls, name):
-        super(ForeignKey, self).contribute_to_class(cls, name)
+        models.ForeignKey.contribute_to_class(self, cls, name)
         setattr(cls, self.name, ReverseSingleRelatedObjectDescriptor(self))
         if isinstance(self.rel.to, basestring):
             target = self.rel.to
         else:
             target = self.rel.to._meta.db_table
         cls._meta.duplicate_targets[self.column] = (target, "o2m")
+
+    def validate(self, value, model_instance):
+        pass
