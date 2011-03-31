@@ -25,6 +25,7 @@ DATABASES = {
 }
 DATABASE_ROUTERS = [
     'foreign_key_across_db_testproject.routers.NewsRouter',
+    'foreign_key_across_db_testproject.routers.FruitRouter',
     ]
 
 # Local time zone for this installation. Choices can be found here:
