@@ -47,62 +47,7 @@ class ReverseSingleRelatedObjectDescriptor(object):
             return rel_obj
 
     def __set__(self, instance, value):
-        if instance is None:
-            raise AttributeError("%s must be accessed via instance" % self._field.name)
-
-        # If null=True, we can assign null here, but otherwise the value needs
-        # to be an instance of the related class.
-        if value is None and self.field.null == False:
-            raise ValueError('Cannot assign None: "%s.%s" does not allow null values.' %
-                                (instance._meta.object_name, self.field.name))
-        elif value is not None and not isinstance(value, self.field.rel.to):
-            raise ValueError('Cannot assign "%r": "%s.%s" must be a "%s" instance.' %
-                                (value, instance._meta.object_name,
-                                 self.field.name, self.field.rel.to._meta.object_name))
-        elif value is not None:
-            if instance._state.db is None:
-                instance._state.db = router.db_for_write(instance.__class__, instance=value)
-            elif value._state.db is None:
-                value._state.db = router.db_for_write(value.__class__, instance=instance)
-            elif value._state.db is not None and instance._state.db is not None:
-                if not router.allow_relation(value, instance):
-                    raise ValueError('Cannot assign "%r": instance is on database "%s", value is on database "%s"' %
-                                        (value, instance._state.db, value._state.db))
-
-        # If we're setting the value of a OneToOneField to None, we need to clear
-        # out the cache on any old related object. Otherwise, deleting the
-        # previously-related object will also cause this object to be deleted,
-        # which is wrong.
-        if value is None:
-            # Look up the previously-related object, which may still be available
-            # since we've not yet cleared out the related field.
-            # Use the cache directly, instead of the accessor; if we haven't
-            # populated the cache, then we don't care - we're only accessing
-            # the object to invalidate the accessor cache, so there's no
-            # need to populate the cache just to expire it again.
-            related = getattr(instance, self.field.get_cache_name(), None)
-
-            # If we've got an old related object, we need to clear out its
-            # cache. This cache also might not exist if the related object
-            # hasn't been accessed yet.
-            if related:
-                cache_name = self.field.related.get_cache_name()
-                try:
-                    delattr(related, cache_name)
-                except AttributeError:
-                    pass
-
-        # Set the value of the related field
-        try:
-            val = getattr(value, self.field.rel.get_related_field().attname)
-        except AttributeError:
-            val = None
-        setattr(instance, self.field.attname, val)
-
-        # Since we already know what the related object is, seed the related
-        # object cache now, too. This avoids another db hit if you get the
-        # object you just set.
-        setattr(instance, self.field.get_cache_name(), value)
+        raise NotImplementedError()
 
 
 class ForeignKeyAcrossDb(models.ForeignKey):
