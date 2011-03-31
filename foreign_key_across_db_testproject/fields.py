@@ -1,4 +1,6 @@
+from django.core import exceptions
 from django.db import models
+from django.db import router
 
 
 class ForeignKeyAcrossDb(models.ForeignKey):
@@ -6,11 +8,11 @@ class ForeignKeyAcrossDb(models.ForeignKey):
     def validate(self, value, model_instance):
         if self.rel.parent_link:
             return
-        super(ForeignKey, self).validate(value, model_instance)
+        models.Field.validate(self, value, model_instance)
         if value is None:
             return
 
-        using = router.db_for_read(model_instance.__class__, instance=model_instance)
+        using = router.db_for_read(self.rel.to, instance=model_instance)  # is this more correct than Django's 1.2.5 version?
         qs = self.rel.to._default_manager.using(using).filter(
                 **{self.rel.field_name: value}
              )
