@@ -41,7 +41,8 @@ class FruitRouter(object):
 
     def allow_syncdb(self, db, model):
         if db == 'default':
-            return model._meta.app_label == 'fruit_app'
+            if model._meta.app_label == 'fruit_app':
+                return True
         elif model._meta.app_label == 'fruit_app':
             return False
         return None
